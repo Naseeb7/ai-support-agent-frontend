@@ -1,73 +1,231 @@
-# React + TypeScript + Vite
+# AI Support Agent – Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This repository contains the frontend for a minimal AI-powered customer support chat system.
 
-Currently, two official plugins are available:
+The goal was not to build a visually impressive UI, but to build a frontend that:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- behaves predictably  
+- reflects backend state accurately  
+- fails gracefully under poor network or backend conditions  
+- resembles a real internal support tool rather than a demo  
 
-## React Compiler
+The frontend simulates how a live chat widget would interact with a production-ready AI support backend.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## What This Does
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Renders a simple live chat interface (user ↔ AI)  
+- Sends user messages to the backend chat API  
+- Maintains conversation continuity via `sessionId`  
+- Fetches conversation history from the backend on reload  
+- Surfaces backend and LLM failures as chat messages  
+- Allows explicitly starting a new conversation  
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+> No authentication is included by design (see scope decisions below).
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+---
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Tech Stack
+
+- React  
+- Vite  
+- TypeScript  
+- Tailwind CSS (v4.x)  
+
+The frontend is intentionally lightweight: no routing, no global state libraries, and no UI frameworks.
+
+---
+
+## Core Design Decisions (Important)
+
+### 1. Backend as the single source of truth
+
+The frontend does **not** persist messages locally.
+
+All conversation history is fetched from the backend using `sessionId`.
+
+This ensures:
+
+- no duplicated or divergent state  
+- consistent behavior across reloads  
+- alignment with backend persistence guarantees  
+
+The frontend acts as a renderer and orchestrator, not a datastore.
+
+---
+
+### 2. Explicit session handling
+
+Conversation state is controlled entirely via `sessionId`.
+
+- If a `sessionId` exists:
+  - history is fetched from the backend
+- If no `sessionId` exists:
+  - the backend creates a new conversation on first message
+
+A **New Chat** action explicitly clears the session and UI state, making conversation boundaries clear and intentional.
+
+This mirrors the backend’s strict session handling rules.
+
+---
+
+### 3. Failure is rendered, not hidden
+
+Backend failures (including LLM errors):
+
+- do not crash the UI  
+- do not block future messages  
+- are rendered as AI error messages in the chat  
+
+This mirrors the backend philosophy that **failure is data**, not an exception.
+
+---
+
+### 4. Logic centralized, UI kept dumb
+
+All state, effects, and API calls live in `App.tsx`.
+
+UI components are strictly presentational:
+
+- no API calls  
+- no storage access  
+- no side effects  
+
+This keeps behavior predictable and prevents logic from leaking into the view layer.
+
+---
+
+### 5. Minimal but intentional UI
+
+The UI is deliberately restrained:
+
+- neutral color palette  
+- no animations  
+- no theming system  
+- no visual gimmicks  
+
+The goal is clarity and correctness, not visual novelty.
+
+---
+
+## API Interaction (High Level)
+
+The frontend interacts with the backend via:
+
+- `POST /chat/message`  
+- `GET /chat/history/:sessionId`  
+
+The frontend trusts backend responses and does not attempt to infer or “repair” state.
+
+---
+
+## Environment Variables
+
+```env
+VITE_BACKEND_BASE_URL=http://localhost:3000
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+An example file is provided:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```env
+.env.example
 ```
+
+---
+
+## Running Locally
+
+```bash
+npm install
+npm run dev
+```
+
+The frontend expects the backend to be running and reachable at `VITE_BACKEND_BASE_URL`.
+
+---
+
+## Folder Structure (Relevant)
+
+```
+src/
+ ├─ components/
+ │   ├─ ChatHeader.tsx
+ │   ├─ MessageList.tsx
+ │   ├─ MessageBubble.tsx
+ │   └─ ChatInput.tsx
+ ├─ lib/
+ │   ├─ api.ts
+ │   └─ config.ts
+ ├─ types/
+ │   └─ chat.ts
+ ├─ App.tsx
+ └─ main.tsx
+```
+
+- `App.tsx` owns all state and side effects  
+- Components are purely presentational  
+- No component fetches data or manages persistence  
+
+---
+
+## Scope Decisions & Trade-offs
+
+### Why no authentication?
+
+Authentication was intentionally excluded.
+
+This assignment focuses on:
+
+- chat flow correctness  
+- session handling  
+- backend-driven state  
+- robustness under failure  
+
+The frontend structure allows user-based authentication to be added later without major refactors.
+
+---
+
+### Why no client-side message persistence?
+
+Persisting messages in local storage would introduce a second source of truth.
+
+Since the backend already persists conversations reliably, the frontend defers entirely to backend history.
+
+---
+
+### Why no streaming responses?
+
+Streaming improves perceived latency but complicates state handling and error scenarios.
+
+The frontend prioritizes:
+
+- deterministic behavior  
+- clean failure handling  
+- simple, debuggable logic  
+
+---
+
+## If I Had More Time
+
+- Streaming AI responses  
+- Message timestamps in UI  
+- Pagination for long histories  
+- Accessibility improvements  
+- Authenticated, user-scoped conversations  
+
+All intentionally excluded to keep scope aligned with the assignment.
+
+---
+
+## Final Note
+
+This frontend is intentionally boring.
+
+Its purpose is to:
+
+- reflect backend truth accurately  
+- avoid surprising behavior  
+- degrade gracefully under failure  
+
+It is designed to evolve safely, not impress visually.
