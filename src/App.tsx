@@ -1,6 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { sendChatMessage, getChatHistory } from './lib/api';
 import type { ChatMessage } from './chatTypes';
+import ChatHeader from './components/ChatHeader';
+import MessageList from './components/MessageList';
+import ChatInput from './components/ChatInput';
 
 function App() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -9,11 +12,6 @@ function App() {
   });
   const [isSending, setIsSending] = useState(false);
   const [inputValue, setInputValue] = useState('');
-  const messagesEndRef = useRef<null | HTMLDivElement>(null);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
 
   useEffect(() => {
     const loadChatHistory = async () => {
@@ -49,7 +47,6 @@ function App() {
     };
 
     loadChatHistory();
-    scrollToBottom();
   }, []);
 
   const handleSend = async () => {
@@ -106,67 +103,26 @@ function App() {
     }
   };
 
-  // Create a temporary typing message when isSending is true
-  const displayMessages = isSending
-    ? [...messages, { id: 'typing', sender: 'ai', text: 'Agent is typing...', status: undefined }]
-    : messages;
-
   return (
     <div className="flex flex-col h-screen max-w-4xl mx-auto">
-      <header className="p-4 border-b flex justify-between items-center">
-        <h1 className="text-xl font-bold">AI Support Chat</h1>
-        <button
-          className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 text-gray-800"
-          onClick={() => {
-            setMessages([]);
-            localStorage.removeItem('chatSessionId');
-            setSessionId(null);
-          }}
-        >
-          New Chat
-        </button>
-      </header>
-      <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
-        <div className="h-[calc(100vh-160px)] overflow-y-auto mb-4">
-          {displayMessages.map((message) => (
-            <div
-              key={message.id}
-              className={`mb-4 flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
-            >
-              <div
-                className={`max-w-[80%] p-4 rounded-2xl ${
-                  message.sender === "user"
-                    ? "bg-blue-600 text-white rounded-br-none"
-                    : "bg-white text-gray-800 rounded-bl-none border border-gray-200"
-                }`}
-              >
-                {message.text}
-              </div>
-            </div>
-          ))}
-          <div ref={messagesEndRef} />
-        </div>
-      </div>
-      <div className="p-4 border-t bg-white">
-        <div className="flex">
-          <input
-            type="text"
-            className="flex-1 p-3 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Type a message..."
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyPress={handleKeyPress}
-            disabled={isSending}
-          />
-          <button
-            className={`p-3 rounded-r-lg ${isSending ? 'bg-gray-300' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
-            onClick={handleSend}
-            disabled={isSending || !inputValue.trim()}
-          >
-            {isSending ? 'Sending...' : 'Send'}
-          </button>
-        </div>
-      </div>
+      <ChatHeader
+        onNewChat={() => {
+          setMessages([]);
+          localStorage.removeItem('chatSessionId');
+          setSessionId(null);
+        }}
+      />
+      <MessageList
+        messages={messages}
+        isSending={isSending}
+      />
+      <ChatInput
+        value={inputValue}
+        onChange={(e) => setInputValue(e.target.value)}
+        onSend={handleSend}
+        onKeyPress={handleKeyPress}
+        disabled={isSending}
+      />
     </div>
   )
 }
