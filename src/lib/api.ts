@@ -16,6 +16,21 @@ async function postJson(path: string, body: unknown) {
   return await response.json();
 }
 
+async function getChatHistory(sessionId: string) {
+  const response = await fetch(BACKEND_BASE_URL + `/chat/history/${sessionId}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return await response.json();
+}
+
 async function sendChatMessage(message: string, sessionId?: string) {
   const body: { message: string; sessionId?: string } = { message };
   if (sessionId) {
@@ -24,4 +39,4 @@ async function sendChatMessage(message: string, sessionId?: string) {
   return await postJson("/chat/message", body);
 }
 
-export { postJson, sendChatMessage };
+export { postJson, sendChatMessage, getChatHistory };

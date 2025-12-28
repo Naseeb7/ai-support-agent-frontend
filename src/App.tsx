@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { sendChatMessage } from './lib/api';
+import { sendChatMessage, getChatHistory } from './lib/api';
 import type { ChatMessage } from './chatTypes';
 
 function App() {
@@ -16,8 +16,41 @@ function App() {
   };
 
   useEffect(() => {
+    const loadChatHistory = async () => {
+      const storedSessionId = localStorage.getItem('chatSessionId');
+      if (storedSessionId) {
+        try {
+          const response = await getChatHistory(storedSessionId);
+          // Handle different possible response formats from backend
+          let history;
+          if (Array.isArray(response)) {
+            history = response;
+          } else if (response && typeof response === 'object' && response.messages) {
+            history = response.messages;
+          } else {
+            // If response format is unexpected, use empty array
+            history = [];
+          }
+
+          const chatMessages: ChatMessage[] = history.map((msg: any) => ({
+            id: msg.id || Date.now().toString(),
+            sender: msg.sender,
+            text: msg.text,
+            status: msg.status
+          }));
+          setMessages(chatMessages);
+          setSessionId(storedSessionId);
+        } catch (error) {
+          console.error('Failed to load chat history:', error);
+          // Continue with empty messages
+          setMessages([]);
+        }
+      }
+    };
+
+    loadChatHistory();
     scrollToBottom();
-  }, [messages, isSending]);
+  }, []);
 
   const handleSend = async () => {
     if (!inputValue.trim() || isSending) return;
@@ -80,8 +113,18 @@ function App() {
 
   return (
     <div className="flex flex-col h-screen max-w-4xl mx-auto">
-      <header className="p-4 border-b">
+      <header className="p-4 border-b flex justify-between items-center">
         <h1 className="text-xl font-bold">AI Support Chat</h1>
+        <button
+          className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 text-gray-800"
+          onClick={() => {
+            setMessages([]);
+            localStorage.removeItem('chatSessionId');
+            setSessionId(null);
+          }}
+        >
+          New Chat
+        </button>
       </header>
       <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
         <div className="h-[calc(100vh-160px)] overflow-y-auto mb-4">
