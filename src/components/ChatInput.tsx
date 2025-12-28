@@ -8,19 +8,19 @@ interface ChatInputProps {
   disabled: boolean;
 }
 
-const ChatInput: React.FC<ChatInputProps> = ({ 
-  value, 
-  onChange, 
-  onSend, 
-  onKeyPress, 
-  disabled 
+const ChatInput: React.FC<ChatInputProps> = ({
+  value,
+  onChange,
+  onSend,
+  onKeyPress,
+  disabled
 }) => {
   return (
-    <div className="p-4 border-t bg-white">
-      <div className="flex">
+    <div className="p-4 border-t border-slate-200 bg-white">
+      <div className="flex rounded-md border border-slate-300 overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500">
         <input
           type="text"
-          className="flex-1 p-3 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-1 p-3 bg-white focus:outline-none"
           placeholder="Type a message..."
           value={value}
           onChange={onChange}
@@ -28,7 +28,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
           disabled={disabled}
         />
         <button
-          className={`p-3 rounded-r-lg ${disabled ? 'bg-gray-300' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+          className={`px-4 py-3 ${disabled ? 'bg-slate-100 text-slate-400' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'}`}
           onClick={onSend}
           disabled={disabled || !value.trim()}
         >

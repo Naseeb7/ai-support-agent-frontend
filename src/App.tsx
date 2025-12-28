@@ -104,25 +104,27 @@ function App() {
   };
 
   return (
-    <div className="flex flex-col h-screen max-w-4xl mx-auto">
-      <ChatHeader
-        onNewChat={() => {
-          setMessages([]);
-          localStorage.removeItem('chatSessionId');
-          setSessionId(null);
-        }}
-      />
-      <MessageList
-        messages={messages}
-        isSending={isSending}
-      />
-      <ChatInput
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
-        onSend={handleSend}
-        onKeyPress={handleKeyPress}
-        disabled={isSending}
-      />
+    <div className="flex flex-col h-screen bg-slate-100">
+      <div className="flex flex-col h-screen w-full sm:w-2/3 max-w-3xl mx-auto bg-white rounded-xl border border-slate-200 shadow-sm">
+        <ChatHeader
+          onNewChat={() => {
+            setMessages([]);
+            localStorage.removeItem('chatSessionId');
+            setSessionId(null);
+          }}
+        />
+        <MessageList
+          messages={messages}
+          isSending={isSending}
+        />
+        <ChatInput
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onSend={handleSend}
+          onKeyPress={handleKeyPress}
+          disabled={isSending}
+        />
+      </div>
     </div>
   )
 }

@@ -8,15 +8,15 @@ interface MessageBubbleProps {
 const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
   return (
     <div
-      className={`mb-4 flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
+      className={`mb-3 flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
     >
       <div
-        className={`max-w-[80%] p-4 rounded-2xl ${
+        className={`max-w-[70%] px-4 py-2 rounded-lg text-sm leading-relaxed ${
           message.sender === "user"
-            ? "bg-blue-600 text-white rounded-br-none"
+            ? "bg-slate-200 text-slate-800"
             : message.status === "error"
-              ? "bg-red-100 text-red-800 rounded-bl-none border border-red-200"
-              : "bg-white text-gray-800 rounded-bl-none border border-gray-200"
+              ? "bg-red-50 text-red-700 border border-red-200"
+              : "bg-white text-slate-800 border border-slate-200"
         }`}
       >
         {message.text}

@@ -24,8 +24,8 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isSending }) => {
     : messages;
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
-      <div className="h-[calc(100vh-160px)] overflow-y-auto mb-4">
+    <div className="flex-1 overflow-y-auto bg-slate-50">
+      <div className="h-[calc(100vh-160px)] overflow-y-auto p-4">
         {displayMessages.map((message) => (
           <MessageBubble key={message.id} message={message} />
         ))}
