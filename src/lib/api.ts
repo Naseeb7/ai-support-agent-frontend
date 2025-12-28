@@ -16,4 +16,12 @@ async function postJson(path: string, body: unknown) {
   return await response.json();
 }
 
-export { postJson };
+async function sendChatMessage(message: string, sessionId?: string) {
+  const body: { message: string; sessionId?: string } = { message };
+  if (sessionId) {
+    body.sessionId = sessionId;
+  }
+  return await postJson("/chat/message", body);
+}
+
+export { postJson, sendChatMessage };
