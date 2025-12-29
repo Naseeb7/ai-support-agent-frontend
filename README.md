@@ -218,6 +218,23 @@ All intentionally excluded to keep scope aligned with the assignment.
 
 ---
 
+## Repositories
+
+- **Backend (this repo)**  
+  https://github.com/Naseeb7/ai-support-agent
+
+- **Frontend**  
+  this repo, Vite + Tailwind
+
+---
+
+## Live Demo
+
+- Backend API: https://ai-support-agent-3uwt.onrender.com
+- Frontend App: https://ai-support-agent-frontend.vercel.app/
+
+---
+
 ## Final Note
 
 This frontend is intentionally boring.
