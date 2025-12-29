@@ -30,7 +30,7 @@ function App() {
             history = [];
           }
 
-          const chatMessages: ChatMessage[] = history.map((msg: any) => ({
+          const chatMessages: ChatMessage[] = history.map((msg: ChatMessage) => ({
             id: msg.id || Date.now().toString(),
             sender: msg.sender,
             text: msg.text,
@@ -64,7 +64,7 @@ function App() {
     setIsSending(true);
 
     try {
-      const response = await sendChatMessage(inputValue, sessionId);
+      const response = await sendChatMessage(inputValue, sessionId ?? undefined);
 
       // Update sessionId if provided in response
       if (response.sessionId) {

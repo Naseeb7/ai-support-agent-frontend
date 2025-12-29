@@ -19,7 +19,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isSending }) => {
   }, [messages, isSending]);
 
   // Create a temporary typing message when isSending is true
-  const displayMessages = isSending
+  const displayMessages: ChatMessage[] = isSending
     ? [...messages, { id: 'typing', sender: 'ai', text: 'Agent is typing...', status: undefined }]
     : messages;
 
